@@ -9,6 +9,7 @@ int main()
     // Kintamuju apsirasymas
     double f, x;    // Funkcijos f reiksmes ir argumentas x
     int n;          // Uzdavinio dimensija
-    double xSprend; // Funkcijos x sprendinys
+    double xSprend; // Argumento reiksme
+    int fSprend;    // Uzdavinio sprendinys
     return 0;
 }
