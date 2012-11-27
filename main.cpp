@@ -35,6 +35,11 @@ int  Steepest_Descent(double (*f)(double *), void (*df)(double *, double *),
      int (*stopping_rule)(double*, double, double*, double, double*, int, int),
                           double a[], double *fa, double *dfa, double cutoff,
 						double cutoff_scale_factor, double tolerance, int n);
+//Niutono Raphsono algoritmas
+int Newton_Raphson_ndim( void (*f)(double*, double*),
+                   void (*df)(double*, double*, double*),
+                              int (*Stopping_Rule)(double*, double*, int),
+                                             double *a, double *fa, int n);
 
 // Generuoja atsitiktini realu skaiciu tarp dLow and dHigh
 double GetRandomNumber(double dLow, double dHigh){
@@ -129,8 +134,16 @@ int main(int argc, const char * argv[])
         SixHumpCamelBackGradient(a, dfa); // Funkcijos gradiento reiksme taske a
         double cutoff = 1.0, cutoff_scale_factor = 1.0; // Pap. parametrai
         double tolerance = 0.01;
-        int err = Steepest_Descent( SixHumpCamelBack, SixHumpCamelBackGradient, StoppingRule,
-        a, &fa, dfa, cutoff, cutoff_scale_factor, tolerance, N);
+        /*int err = Steepest_Descent( SixHumpCamelBack, SixHumpCamelBackGradient, StoppingRule,
+        a, &fa, dfa, cutoff, cutoff_scale_factor, tolerance, N);*/
+
+//  int Newton_Raphson_ndim( void (*f)(double*, double*),                     //
+//                   void (*df)(double*, double*, double*),                   //
+//                              int (*Stopping_Rule)(double*, double*, int),  //
+//                                             double *a, double *fa, int n)
+
+
+        int err = Newton_Raphson_ndim(SixHumpCamelBack, SixHumpCamelBackGradient, StoppingRule, a, &fa, N);
         switch (err)
         {
             case 0:
