@@ -1,114 +1,69 @@
+//
+//  main.cpp
+//  SteepestDescent
+//
+//  Created by Remigijus Paulavicius on 11/20/12.
+//  Copyright (c) 2012 Remigijus Paulavicius. All rights reserved.
+//
+
 #include <iostream>
-#include <cstdlib>
 #include <cmath>
+#include <cstdlib> // rand(), srand()
 #include <vector>
 #include <algorithm>
-#define N 100
-// funkcija  http://www.it.lut.fi/ip/evo/functions/node26.html
-// six camel hump function
+#include <ctime>
+#define N 2
+#define SPRENDINIAI 6
 using namespace std;
 
-    struct taskai
-    {
-        double x1;
-        double x2;
-        double sprendinys;
-    };
-
+struct taskai
+{
+    double x1;
+    double x2;
+    double sprendinys;
+};
 double sixhump(double x0, double x1)
 {
     double f = (4- 2.1 * x0 * x0 + (pow(x0,4))/3) * x0 * x0 + x0 * x1 + (-4+4*x1*x1)*(pow(x1,2));
     return f;
 }
+// Vektoriaus begalines (max) normos funkcijos deklaracija
+double Vector_Max_Norm(double v[], int n);
 
-void insertionSort(taskai *arr, int length) {
-      int i, j;
-      taskai tmp;
-      for (i = 1; i < length; i++) {
-            j = i;
-            while (j > 0 && arr[j - 1].sprendinys > arr[j].sprendinys) {
-                  tmp = arr[j];
-                  arr[j] = arr[j - 1];
-                  arr[j - 1] = tmp;
-                  j--;
-            }
-      }
+// Greiciausio nusileidimo (angl. Steepest Descent) metodo deklaracija
+int  Steepest_Descent(double (*f)(double *), void (*df)(double *, double *),
+     int (*stopping_rule)(double*, double, double*, double, double*, int, int),
+                          double a[], double *fa, double *dfa, double cutoff,
+						double cutoff_scale_factor, double tolerance, int n);
+
+// Generuoja atsitiktini realu skaiciu tarp dLow and dHigh
+double GetRandomNumber(double dLow, double dHigh){
+    return static_cast<double>(rand())/RAND_MAX*(dHigh-dLow) + dLow;
 }
 
-void pirmas_budas(double p_apacia, double p_virsus, double p_apacia2, double p_virsus2)
-{
-    int mas_dydis = N;
-    int n;//dimensija
-    taskai *taskuArray = new taskai[mas_dydis];
-
-    cout<<"===Sprendziame pirmu budu===\n";
-    cout<<"Iveskite uzdavinio dimensija(n):";
-    cin>>n;
-    for(int i=0;i<n;i++)
-    {
-        if((i+1)==mas_dydis)
-        {
-            cout<<"Esam ife\n";
-            taskai *tmptaskuArray = taskuArray;
-            mas_dydis=mas_dydis*2;
-            taskuArray = new taskai[mas_dydis];
-            for(int j=0;j<i;j++)
-                taskuArray[j]=tmptaskuArray[j];
-
-            delete []tmptaskuArray;
-
-        }
-        taskuArray[i].x1=rand() * (p_virsus - p_apacia) / RAND_MAX + p_apacia;
-        taskuArray[i].x2=rand() * (p_virsus2 - p_apacia2) / RAND_MAX + p_apacia2;
-        taskuArray[i].sprendinys=sixhump(taskuArray[i].x1,taskuArray[i].x2);
-        cout<<i<<'\t'<<taskuArray[i].x1<<'\t'<<taskuArray[i].x2<<'\t'<<taskuArray[i].sprendinys<<endl;
-    }
-    insertionSort(taskuArray, n);
-    cout<<"\nSurusiuotas masyvas pagal funkcijos sprendini(TOP 5)\n";
-    for(int i=0;i<5;i++)
-    {
-        cout<<i<<'\t'<<taskuArray[i].x1<<'\t'<<taskuArray[i].x2<<'\t'<<taskuArray[i].sprendinys<<endl;
-    }
-    cout<<"Darbas baigtas\n";
-    delete []taskuArray;
+// Apskaiciuoja Six-hump Camel Back funkcijos reiksme taske x
+double SixHumpCamelBack(double *x){
+    return (4-2.1*x[0]*x[0]+x[0]*x[0]*x[0]*x[0]/3)*x[0]*x[0] + x[0]*x[1] +
+    (-4+4*x[1]*x[1])*x[1]*x[1];
+}
+// Apskaiciuoja Six-hump Camel Back gradiento reiksme taske x
+void SixHumpCamelBackGradient(double *x, double *fGrad){
+    fGrad[0] = 8*x[0]-8.4*x[0]*x[0]*x[0]+2*x[0]*x[0]*x[0]*x[0]*x[0]+x[1];
+    fGrad[1] = x[0]-8*x[1]+16*x[1]*x[1]*x[1];
 }
 
-void antras_budas(double p_apacia, double p_virsus, double p_apacia2, double p_virsus2, double p_fSprend, double p_epsilon)
-{
-    int mas_dydis=N;
-    taskai *taskuArray = new taskai[mas_dydis];
-    int ilgis=-1;
-    cout<<"===Sprendziame antru budu===\n";
-    do
-    {
-        if((ilgis+1)==mas_dydis)
-        {
-            cout<<"Esam ife\n";
-            taskai *tmptaskuArray = taskuArray;
-            mas_dydis=mas_dydis*2;
-            cout<<"MAS_DYDIS="<<mas_dydis<<endl;
-            taskuArray = new taskai[mas_dydis];
-            for(int i=0;i<ilgis;i++)
-                taskuArray[i]=tmptaskuArray[i];
-
-            delete []tmptaskuArray;
-
-        }
-        ilgis++;
-        taskuArray[ilgis].x1=rand() * (p_virsus - p_apacia) / RAND_MAX + p_apacia;
-        taskuArray[ilgis].x2=rand() * (p_virsus2 - p_apacia2) / RAND_MAX + p_apacia2;
-        taskuArray[ilgis].sprendinys=sixhump(taskuArray[ilgis].x1,taskuArray[ilgis].x2);
-        cout<<ilgis<<'\t'<<taskuArray[ilgis].x1<<'\t'<<taskuArray[ilgis].x2<<'\t'<<taskuArray[ilgis].sprendinys<<endl;
-    }
-    while(fabs(p_fSprend-(taskuArray[ilgis].sprendinys))>p_epsilon);
-    insertionSort(taskuArray, ilgis+1);
-    cout<<"\nSurusiuotas masyvas pagal funkcijos sprendini(TOP 5)\n";
-    for(int i=0;i<5;i++)
-    {
-        cout<<i<<'\t'<<taskuArray[i].x1<<'\t'<<taskuArray[i].x2<<'\t'<<taskuArray[i].sprendinys<<endl;
-    }
-    cout<<"Darbas baigtas\n";
-    delete []taskuArray;
+// Algoritmo sustojimo salyga kontroliuojanti funkcija
+int StoppingRule(double* a, double fa, double* x, double fx, double* dfa, int
+iteration, int n){
+	double fEps = abs(fx - fa); // Funkcijos reiksmiu skirtumas
+	double xa[n];
+	for(int i = 0; i < n; ++i) xa[i] = x[i]-a[i];
+	double xEps = Vector_Max_Norm(xa, 2); // Argumento skirtumo norma
+	double dfaEps = Vector_Max_Norm(dfa, 2); // Gradiento norma
+	if(iteration > 3)
+		return -6;
+	else
+		return 0;
 }
 
 bool rusiavimas(const taskai a, taskai b)
@@ -116,85 +71,95 @@ bool rusiavimas(const taskai a, taskai b)
     return a.sprendinys<b.sprendinys;
 }
 
-void trecias_budas(double p_apacia, double p_virsus, double p_apacia2, double p_virsus2)
+void RandomSearch(double *a, double *region)//musu montecarlo funkcija     as manau turetu buti cia void o ne double
 {
     cout<<"===Sprendziame treciu budu===\n";
     vector <taskai> vec(0);
     taskai tmptaskai;
     int n;
+    int jj=0;
     cout<<"Iveskite uzdavinio dimensija(n):";
     cin>>n;
     for(int i=0;i<n;i++)
     {
-        tmptaskai.x1=rand() * (p_virsus - p_apacia) / RAND_MAX + p_apacia;
-        tmptaskai.x2=rand() * (p_virsus2 - p_apacia2) / RAND_MAX + p_apacia2;
+        tmptaskai.x1=rand() * (region[1] - region[0]) / RAND_MAX + region[0];
+        tmptaskai.x2=rand() * (region[3] - region[2]) / RAND_MAX + region[2];
         tmptaskai.sprendinys=sixhump(tmptaskai.x1,tmptaskai.x2);
         vec.push_back(tmptaskai);
         cout<<i<<'\t'<<vec[i].x1<<'\t'<<vec[i].x2<<'\t'<<vec[i].sprendinys<<endl;
     }
     sort(vec.begin(),vec.end(),rusiavimas);
-    cout<<"\nSurusiuotas vektorius pagal funkcijos sprendini(TOP 5)\n";
-    for(int j=0;j<5;j++)
+    cout<<"\nSurusiuotas vektorius pagal funkcijos sprendini(TOP 3)\n";
+    for(int j=0;j<(SPRENDINIAI/2);j++)
+        //cout<<j<<'\t'<<vec[j].x1<<'\t'<<vec[j].x2<<'\t'<<vec[j].sprendinys<<endl;
+        {
+        a[jj]=vec[j].x1;
+        jj++;
+        a[jj]=vec[j].x2;
         cout<<j<<'\t'<<vec[j].x1<<'\t'<<vec[j].x2<<'\t'<<vec[j].sprendinys<<endl;
+        }
 
     cout<<"Darbas baigtas\n";
+    vec.clear();
 }
 
-void ketvirtas_budas(double p_apacia, double p_virsus, double p_apacia2, double p_virsus2, double p_fSprend, double p_epsilon)
+int main(int argc, const char * argv[])
 {
-    cout<<"===Sprendziame ketvirtu budu===\n";
-    vector <taskai> vec(0);
-    int ilgis=-1;
-    taskai tmptaskai;
-    do
+	double region[] = {-1.9, 1.9, -1.1, 1.1};
+	double xreiksmes[SPRENDINIAI];
+	double a[2];
+	int i=0;
+	srand(time(0)); // Naudoja vis kita seed'a
+	RandomSearch(xreiksmes, region); /*!!!!!!!!!!!!!!!!!!!!!uzdavinio esme perduoti i a geriausius montecarlo metodu surastas 3 geriausias reiksmes!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+//	double a[N] = {0.0, 1.0}; // N-matis Vektorius
+	/*srand(time(0)); // Naudoja vis kita seed'a
+	double a[N]; // N-matis Vektorius
+	for(int i = 0; i < N; ++i){
+        a[i] = GetRandomNumber(region[2*i], region[2*i+1]);
+    }*/
+
+    while(i<SPRENDINIAI)
     {
-        ilgis++;
-        tmptaskai.x1=rand() * (p_virsus - p_apacia) / RAND_MAX + p_apacia;
-        tmptaskai.x2=rand() * (p_virsus2 - p_apacia2) / RAND_MAX + p_apacia2;
-        tmptaskai.sprendinys=sixhump(tmptaskai.x1,tmptaskai.x2);
-        vec.push_back(tmptaskai);
-        cout<<ilgis<<'\t'<<vec[ilgis].x1<<'\t'<<vec[ilgis].x2<<'\t'<<vec[ilgis].sprendinys<<endl;
+        a[0]=xreiksmes[i];
+        i++;
+        a[1]=xreiksmes[i];
+        i++;
+        double fa = SixHumpCamelBack(a); // Funkcijos reiksme pradiniame taske a
+        double dfa[N];
+        SixHumpCamelBackGradient(a, dfa); // Funkcijos gradiento reiksme taske a
+        double cutoff = 1.0, cutoff_scale_factor = 1.0; // Pap. parametrai
+        double tolerance = 0.01;
+        int err = Steepest_Descent( SixHumpCamelBack, SixHumpCamelBackGradient, StoppingRule,
+        a, &fa, dfa, cutoff, cutoff_scale_factor, tolerance, N);
+        switch (err)
+        {
+            case 0:
+                cout << "Success" << endl;
+                break;
+            case -1:
+                cout << "In the line search three points are collinear." << endl;
+                break;
+            case -2:
+                cout << "In the line search the extremum of the parabola through the three points is a maximum." << endl;
+                break;
+            case -3:
+                cout << "Int the line search the initial points failed to satisfy the condition that x1 < x2 < x3 and fx1 > fx2 < fx3." << endl;
+                break;
+            case -4:
+                cout << "Not enough HEAP memory." << endl;
+                break;
+            case -5:
+                cout << "The gradient evaluated at the initial point vanishes." << endl;
+            case -6:
+                cout << "Exceed maximal number of iterations." << endl;
+            break;
+        }
+        cout << "Greiciausio nusileidimo (angl. Steepest Descent) metodu" << endl;
+        cout << "surastas sprendinys yra:" << endl;
+        cout << "xMin = (" << a[0] << ", " << a[1] << ")" << endl;
+        cout << "f(xMin) = " << fa << endl;
+        cout << "*****************************************************\n";
     }
-    while(fabs(p_fSprend-(vec[ilgis].sprendinys))>p_epsilon);
-    sort(vec.begin(),vec.end(),rusiavimas);
-    cout<<"\nSurusiuotas vektorius pagal funkcijos sprendini(TOP 5)\n";
-    for(int j=0;j<5;j++)
-        cout<<j<<'\t'<<vec[j].x1<<'\t'<<vec[j].x2<<'\t'<<vec[j].sprendinys<<endl;
-    cout<<"Darbas baigtas\n";
+	return 0;
 }
 
-int main()
-{
-    cout << "Monte Carlo realizacijos pradzia\n";
-    cout << "(RANDOM SEARCH METHOD)\n";
-    //Kintamuju apsirasymas
-    double fSprendinys=-1.031628453; // Uzdavinio sprendinys
-    double epsilon=0.0001;  //paklaida 0.01 - 2.4s; 0.001 - 2.4s; 0.0001 - 2min
-    int budas; //Uzdavinio sprendimo budas
-    double virsutinis_rezis, apatinis_rezis, virsutinis_rezis2, apatinis_rezis2; // apsirasome intervalo rezius
-    //cout << "Iveskite inervalo rerzius x1: ";
-    //cin >> apatinis_rezis >> virsutinis_rezis;
-    //cout << "Iveskite inervalo rerzius x2: ";
-    //cin >> apatinis_rezis2 >> virsutinis_rezis2;
-    apatinis_rezis = -1.9;
-    virsutinis_rezis = 1.9;
-    apatinis_rezis2 = -1.1;
-    virsutinis_rezis2 = 1.1;
-    cout << "Pasirinkite minimumo ieskojimo buda(1/2/3/4): ";
-    cin >> budas;
-    switch(budas)
-    {
-        case 1:pirmas_budas(apatinis_rezis,virsutinis_rezis,apatinis_rezis2,virsutinis_rezis2);
-        break;
-        case 2:antras_budas(apatinis_rezis,virsutinis_rezis,apatinis_rezis2,virsutinis_rezis2, fSprendinys, epsilon);
-        break;
-        case 3:trecias_budas(apatinis_rezis,virsutinis_rezis,apatinis_rezis2,virsutinis_rezis2);
-        break;
-        case 4:ketvirtas_budas(apatinis_rezis,virsutinis_rezis,apatinis_rezis2,virsutinis_rezis2, fSprendinys, epsilon);
-        break;
-        default:cout << "Nekorektiskai pasirinktas sprendimo budas.";
-        break;
-    }
-
-    return 0;
-}
