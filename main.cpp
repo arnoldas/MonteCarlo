@@ -48,8 +48,11 @@ double GetRandomNumber(double dLow, double dHigh){
 
 // Apskaiciuoja Six-hump Camel Back funkcijos reiksme taske x
 double SixHumpCamelBack(double *x){
-    return (4-2.1*x[0]*x[0]+x[0]*x[0]*x[0]*x[0]/3)*x[0]*x[0] + x[0]*x[1] +
-    (-4+4*x[1]*x[1])*x[1]*x[1];
+    return (4-2.1*x[0]*x[0]+x[0]*x[0]*x[0]*x[0]/3)*x[0]*x[0] + x[0]*x[1] + (-4+4*x[1]*x[1])*x[1]*x[1];
+}
+void SixHumpCamelBack_R(double *x, double *fa)
+{
+    fa[0]=(4-2.1*x[0]*x[0]+x[0]*x[0]*x[0]*x[0]/3)*x[0]*x[0] + x[0]*x[1] + (-4+4*x[1]*x[1])*x[1]*x[1];
 }
 // Apskaiciuoja Six-hump Camel Back gradiento reiksme taske x
 void SixHumpCamelBackGradient(double *x, double *fGrad){
@@ -114,65 +117,108 @@ int main(int argc, const char * argv[])
 	double xreiksmes[SPRENDINIAI];
 	double a[2];
 	int i=0;
+	int budas;
 	srand(time(0)); // Naudoja vis kita seed'a
-	RandomSearch(xreiksmes, region); /*!!!!!!!!!!!!!!!!!!!!!uzdavinio esme perduoti i a geriausius montecarlo metodu surastas 3 geriausias reiksmes!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-//	double a[N] = {0.0, 1.0}; // N-matis Vektorius
-	/*srand(time(0)); // Naudoja vis kita seed'a
-	double a[N]; // N-matis Vektorius
-	for(int i = 0; i < N; ++i){
-        a[i] = GetRandomNumber(region[2*i], region[2*i+1]);
-    }*/
-
-    while(i<SPRENDINIAI)
+    cout<<"1-Steepest Descent\t2-Newton Raphson\n";
+    cin>>budas;
+    if(budas==1)
     {
-        a[0]=xreiksmes[i];
-        i++;
-        a[1]=xreiksmes[i];
-        i++;
-        double fa = SixHumpCamelBack(a); // Funkcijos reiksme pradiniame taske a
-        double dfa[N];
-        SixHumpCamelBackGradient(a, dfa); // Funkcijos gradiento reiksme taske a
-        double cutoff = 1.0, cutoff_scale_factor = 1.0; // Pap. parametrai
-        double tolerance = 0.01;
-        /*int err = Steepest_Descent( SixHumpCamelBack, SixHumpCamelBackGradient, StoppingRule,
-        a, &fa, dfa, cutoff, cutoff_scale_factor, tolerance, N);*/
-
-//  int Newton_Raphson_ndim( void (*f)(double*, double*),                     //
+        RandomSearch(xreiksmes, region); /*!!!!!!!!!!!!!!!!!!!!!uzdavinio esme perduoti i a geriausius montecarlo metodu surastas 3 geriausias reiksmes!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+    //	double a[N] = {0.0, 1.0}; // N-matis Vektorius
+        /*srand(time(0)); // Naudoja vis kita seed'a
+        double a[N]; // N-matis Vektorius
+        for(int i = 0; i < N; ++i){
+            a[i] = GetRandomNumber(region[2*i], region[2*i+1]);
+        }*/
+        while(i<SPRENDINIAI)
+        {
+            a[0]=xreiksmes[i];
+            i++;
+            a[1]=xreiksmes[i];
+            i++;
+            double fa = SixHumpCamelBack(a); // Funkcijos reiksme pradiniame taske a
+            double dfa[N];
+            SixHumpCamelBackGradient(a, dfa); // Funkcijos gradiento reiksme taske a
+            double cutoff = 1.0, cutoff_scale_factor = 1.0; // Pap. parametrai
+            double tolerance = 0.01;
+            int err = Steepest_Descent( SixHumpCamelBack, SixHumpCamelBackGradient, StoppingRule,
+            a, &fa, dfa, cutoff, cutoff_scale_factor, tolerance, N);
+            switch (err)
+            {
+                case 0:
+                    cout << "Success" << endl;
+                    break;
+                case -1:
+                    cout << "In the line search three points are collinear." << endl;
+                    break;
+                case -2:
+                    cout << "In the line search the extremum of the parabola through the three points is a maximum." << endl;
+                    break;
+                case -3:
+                    cout << "Int the line search the initial points failed to satisfy the condition that x1 < x2 < x3 and fx1 > fx2 < fx3." << endl;
+                    break;
+                case -4:
+                    cout << "Not enough HEAP memory." << endl;
+                    break;
+                case -5:
+                    cout << "The gradient evaluated at the initial point vanishes." << endl;
+                case -6:
+                    cout << "Exceed maximal number of iterations." << endl;
+                break;
+            }
+            cout << "Greiciausio nusileidimo (angl. Steepest Descent) metodu" << endl;
+            cout << "surastas sprendinys yra:" << endl;
+            cout << "xMin = (" << a[0] << ", " << a[1] << ")" << endl;
+            cout << "f(xMin) = " << fa << endl;
+            cout << "*****************************************************\n";
+        }
+    }
+    else if(budas==2)
+    {
+        RandomSearch(xreiksmes, region); /*!!!!!!!!!!!!!!!!!!!!!uzdavinio esme perduoti i a geriausius montecarlo metodu surastas 3 geriausias reiksmes!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
+        while(i<SPRENDINIAI)
+        {
+            a[0]=xreiksmes[i];
+            i++;
+            a[1]=xreiksmes[i];
+            i++;
+            vector <double> fa[N];
+            SixHumpCamelBack_R(a, fa); // Funkcijos reiksme pradiniame taske a
+            double dfa[N];
+            SixHumpCamelBackGradient(a, dfa); // Funkcijos gradiento reiksme taske a
+            //int err = Steepest_Descent( SixHumpCamelBack, SixHumpCamelBackGradient, StoppingRule,
+            //a, &fa, dfa, cutoff, cutoff_scale_factor, tolerance, N);
+//    int Newton_Raphson_ndim( void (*f)(double*, double*),                     //
 //                   void (*df)(double*, double*, double*),                   //
 //                              int (*Stopping_Rule)(double*, double*, int),  //
 //                                             double *a, double *fa, int n)
 
 
-        int err = Newton_Raphson_ndim(SixHumpCamelBack, SixHumpCamelBackGradient, StoppingRule, a, &fa, N);
-        switch (err)
-        {
-            case 0:
-                cout << "Success" << endl;
+            int err = Newton_Raphson_ndim(SixHumpCamelBack_R,
+                                          SixHumpCamelBackGradient,
+                                          StoppingRule,
+                                          a,
+                                          &fa,
+                                          N);
+            switch (err)
+            {
+                case 0:
+                    cout << "Success" << endl;
+                    break;
+                case -1:
+                    cout << "Not enough memory." << endl;
+                    break;
+                case -2:
+                    cout << "Jacobian is singular or ill-formed." << endl;
+                    break;
+                case -6:
+                    cout << "Exceed maximal number of iterations." << endl;
                 break;
-            case -1:
-                cout << "In the line search three points are collinear." << endl;
-                break;
-            case -2:
-                cout << "In the line search the extremum of the parabola through the three points is a maximum." << endl;
-                break;
-            case -3:
-                cout << "Int the line search the initial points failed to satisfy the condition that x1 < x2 < x3 and fx1 > fx2 < fx3." << endl;
-                break;
-            case -4:
-                cout << "Not enough HEAP memory." << endl;
-                break;
-            case -5:
-                cout << "The gradient evaluated at the initial point vanishes." << endl;
-            case -6:
-                cout << "Exceed maximal number of iterations." << endl;
-            break;
+            }
         }
-        cout << "Greiciausio nusileidimo (angl. Steepest Descent) metodu" << endl;
-        cout << "surastas sprendinys yra:" << endl;
-        cout << "xMin = (" << a[0] << ", " << a[1] << ")" << endl;
-        cout << "f(xMin) = " << fa << endl;
-        cout << "*****************************************************\n";
     }
+    else
+        cout<<"Blogai pasirinktas uzdavinio budas.\n";
 	return 0;
 }
 
