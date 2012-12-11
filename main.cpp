@@ -12,6 +12,9 @@
 #include <vector>
 #include <algorithm>
 #include <ctime>
+#include "sixhump.h"
+#include "matlab.h"
+#include <stdio.h>
 #define N 2
 #define SPRENDINIAI 6
 using namespace std;
@@ -22,11 +25,11 @@ struct taskai
     double x2;
     double sprendinys;
 };
-double sixhump(double x0, double x1)
+/*double sixhump(double x0, double x1)
 {
     double f = (4- 2.1 * x0 * x0 + (pow(x0,4))/3) * x0 * x0 + x0 * x1 + (-4+4*x1*x1)*(pow(x1,2));
     return f;
-}
+}*/
 // Vektoriaus begalines (max) normos funkcijos deklaracija
 double Vector_Max_Norm(double v[], int n);
 
@@ -117,12 +120,14 @@ int main(int argc, const char * argv[])
 	double xreiksmes[SPRENDINIAI];
 	double a[2];
 	int i=0;
-	int budas;
+	sixhumpInitialize();
+	sixhumpTerminate();
+	//int budas;
 	srand(time(0)); // Naudoja vis kita seed'a
-    cout<<"1-Steepest Descent\t2-Newton Raphson\n";
-    cin>>budas;
-    if(budas==1)
-    {
+    //cout<<"1-Steepest Descent\t2-Newton Raphson\n";
+    //cin>>budas;
+    //if(budas==1)
+    //{
         RandomSearch(xreiksmes, region); /*!!!!!!!!!!!!!!!!!!!!!uzdavinio esme perduoti i a geriausius montecarlo metodu surastas 3 geriausias reiksmes!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
     //	double a[N] = {0.0, 1.0}; // N-matis Vektorius
         /*srand(time(0)); // Naudoja vis kita seed'a
@@ -171,54 +176,7 @@ int main(int argc, const char * argv[])
             cout << "xMin = (" << a[0] << ", " << a[1] << ")" << endl;
             cout << "f(xMin) = " << fa << endl;
             cout << "*****************************************************\n";
-        }
     }
-    else if(budas==2)
-    {
-        RandomSearch(xreiksmes, region); /*!!!!!!!!!!!!!!!!!!!!!uzdavinio esme perduoti i a geriausius montecarlo metodu surastas 3 geriausias reiksmes!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!*/
-        while(i<SPRENDINIAI)
-        {
-            a[0]=xreiksmes[i];
-            i++;
-            a[1]=xreiksmes[i];
-            i++;
-            vector <double> fa[N];
-            SixHumpCamelBack_R(a, fa); // Funkcijos reiksme pradiniame taske a
-            double dfa[N];
-            SixHumpCamelBackGradient(a, dfa); // Funkcijos gradiento reiksme taske a
-            //int err = Steepest_Descent( SixHumpCamelBack, SixHumpCamelBackGradient, StoppingRule,
-            //a, &fa, dfa, cutoff, cutoff_scale_factor, tolerance, N);
-//    int Newton_Raphson_ndim( void (*f)(double*, double*),                     //
-//                   void (*df)(double*, double*, double*),                   //
-//                              int (*Stopping_Rule)(double*, double*, int),  //
-//                                             double *a, double *fa, int n)
-
-
-            int err = Newton_Raphson_ndim(SixHumpCamelBack_R,
-                                          SixHumpCamelBackGradient,
-                                          StoppingRule,
-                                          a,
-                                          &fa,
-                                          N);
-            switch (err)
-            {
-                case 0:
-                    cout << "Success" << endl;
-                    break;
-                case -1:
-                    cout << "Not enough memory." << endl;
-                    break;
-                case -2:
-                    cout << "Jacobian is singular or ill-formed." << endl;
-                    break;
-                case -6:
-                    cout << "Exceed maximal number of iterations." << endl;
-                break;
-            }
-        }
-    }
-    else
-        cout<<"Blogai pasirinktas uzdavinio budas.\n";
 	return 0;
 }
 

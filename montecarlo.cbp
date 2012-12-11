@@ -32,6 +32,7 @@
 			<Add option="-Wall" />
 			<Add option="-fexceptions" />
 		</Compiler>
+		<Unit filename="..\..\..\Program Files (x86)\MatLab R2010b\R2010b\extern\lib\win32\microsoft\libmx.lib" />
 		<Unit filename="copy_vector.cpp" />
 		<Unit filename="gauss_elimination.cpp" />
 		<Unit filename="main.cpp" />
@@ -40,6 +41,7 @@
 		<Unit filename="minimize_down_the_line.cpp" />
 		<Unit filename="newton_raphson_ndim.cpp" />
 		<Unit filename="ray_in_n_space.cpp" />
+		<Unit filename="sixhump.lib" />
 		<Unit filename="steepest_descent.cpp" />
 		<Unit filename="subtract_vectors.cpp" />
 		<Unit filename="vector_max_norm.cpp" />

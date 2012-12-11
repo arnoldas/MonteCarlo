@@ -1,0 +1,7 @@
+sixhumpInitialize
+sixhumpInitializeWithHandlers
+sixhumpTerminate
+sixhumpPrintStackTrace
+sixhumpGetMcrID
+mlxSixhump
+mlfSixhump

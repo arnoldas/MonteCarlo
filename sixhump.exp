@@ -1,0 +1,8 @@
+sixhump.dll
+_mlfSixhump		_mlfSixhump
+_mlxSixhump		_mlxSixhump
+_sixhumpGetMcrID		_sixhumpGetMcrID
+_sixhumpInitialize		_sixhumpInitialize
+_sixhumpInitializeWithHandlers		_sixhumpInitializeWithHandlers
+_sixhumpPrintStackTrace		_sixhumpPrintStackTrace
+_sixhumpTerminate		_sixhumpTerminate
